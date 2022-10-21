@@ -32,3 +32,12 @@ do_compile:append() {
         ${B}/tools/mkenvimage -r -s ${UBOOT_ENV_SIZE} -o ${WORKDIR}/${UBOOT_ENV_BINARY} ${WORKDIR}/${UBOOT_ENV_TXT}
     fi
 }
+
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+
+
+SRC_URI += " \
+    file://0001-ast2600-uart-set-uart-to-uart3.patch \
+"
+
+
