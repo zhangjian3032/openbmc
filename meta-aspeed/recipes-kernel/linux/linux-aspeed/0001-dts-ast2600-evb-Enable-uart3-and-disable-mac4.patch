@@ -1,0 +1,113 @@
+From 48f4ba8110abc855211ea4fd54954ae3de89d82c Mon Sep 17 00:00:00 2001
+From: Jian Zhang <zhangjian.3032@bytedance.com>
+Date: Sat, 22 Oct 2022 01:38:43 +0800
+Subject: [PATCH] dts: ast2600-evb: Enable uart3 and disable mac4
+
+Tested:
+1. Set u-boot env `bootargs` to `console=ttyS2,115200n8`, and boot
+```
+setenv bootargs console=ttyS2,115200n8 root=/dev/ram rw
+saveenv
+boot
+```
+
+2. Check the console output.
+
+the default uart `uart5` is output until `Starting kernel ...` and
+the kernel output put from `uart3`.
+
+Uart5 output:
+```
+ ## Loading fdt from FIT Image at 83000000 ...
+   Using 'conf-aspeed-ast2600-evb.dtb' configuration
+   Verifying Hash Integrity ... OK
+   Trying 'fdt-aspeed-ast2600-evb.dtb' fdt subimage
+     Description:  Flattened Device Tree blob
+     Type:         Flat Device Tree
+     Compression:  uncompressed
+     Data Start:   0x833ae778
+     Data Size:    37837 Bytes = 37 KiB
+     Architecture: ARM
+     Hash algo:    sha256
+     Hash value:   df6af11a183e9e5012e573cac8bc3b9ed439b90e60f1f07db27bef7d0493933f
+   Verifying Hash Integrity ... sha256+ OK
+   Booting using the fdt blob at 0x833ae778
+   Loading Kernel Image ... OK
+   Loading Ramdisk to 8ff00000, end 8ffff008 ... OK
+   Loading Device Tree to 8fef3000, end 8feff3cc ... OK
+
+Starting kernel ...
+```
+
+Uart3 output:
+```
+[    0.000000] Booting Linux on physical CPU 0xf00
+[    0.000000] Linux version 5.15.69-c9fb275 (oe-user@oe-host) (arm-openbmc-linux-gnueabi-gcc (GCC) 12.2.0, GNU ld (GNU Binutils) 2.39.0.20220819)2
+[    0.000000] CPU: ARMv7 Processor [410fc075] revision 5 (ARMv7), cr=10c5387d
+
+```
+
+Signed-off-by: Jian Zhang <zhangjian.3032@bytedance.com>
+---
+ arch/arm/boot/dts/aspeed-ast2600-evb.dts | 24 +++++-------------------
+ 1 file changed, 5 insertions(+), 19 deletions(-)
+
+diff --git a/arch/arm/boot/dts/aspeed-ast2600-evb.dts b/arch/arm/boot/dts/aspeed-ast2600-evb.dts
+index 9772fb1e2e07..d7a99c03c2b0 100644
+--- a/arch/arm/boot/dts/aspeed-ast2600-evb.dts
++++ b/arch/arm/boot/dts/aspeed-ast2600-evb.dts
+@@ -12,6 +12,7 @@ / {
+ 
+ 	aliases {
+ 		serial4 = &uart5;
++		serial2 = &uart3;
+ 	};
+ 
+ 	chosen {
+@@ -111,15 +112,6 @@ ethphy2: ethernet-phy@0 {
+ 	};
+ };
+ 
+-&mdio3 {
+-	status = "okay";
+-
+-	ethphy3: ethernet-phy@0 {
+-		compatible = "ethernet-phy-ieee802.3-c22";
+-		reg = <0>;
+-	};
+-};
+-
+ &mac0 {
+ 	status = "okay";
+ 
+@@ -151,16 +143,6 @@ &mac2 {
+ 	pinctrl-0 = <&pinctrl_rgmii3_default>;
+ };
+ 
+-&mac3 {
+-	status = "okay";
+-
+-	phy-mode = "rgmii";
+-	phy-handle = <&ethphy3>;
+-
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_rgmii4_default>;
+-};
+-
+ &emmc_controller {
+ 	status = "okay";
+ };
+@@ -207,6 +189,10 @@ &uart5 {
+ 	compatible = "snps,dw-apb-uart";
+ };
+ 
++&uart3 {
++	status = "okay";
++};
++
+ &i2c0 {
+ 	status = "okay";
+ 
+-- 
+2.25.1
+
